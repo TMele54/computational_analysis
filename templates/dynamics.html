@@ -1,46 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Computational Analysis</title>
 
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Computational Analysis</title>
 
     <script src="https://unpkg.com/d3-3d/build/d3-3d.min.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
-    <style type="text/css">
-        button {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
-        .xText{
-            fill: red;
-        }
-        .yText{
-            fill: green;
-        }
-        .zText{
-            fill: blue;
-        }
-        div.tooltip {
-             position: absolute;
-             text-align: center;
-             padding: .2rem;
-             background: #313639;
-             color: #f9f9f9;
-             border: 0px;
-             border-radius: 8px;
-             pointer-events: none;
-             font-size: 18px;
-        }
-    </style>
+    <link rel="stylesheet" href="../static/css/style.css">
 
 </head>
 <body>
 
-    <button>do something</button>
-    <div id="smart"></div>
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-md-8">
+                <div id="smart"></div>
+            </div>
+            <div class="col-md-4">
+                <div>
+                    <br>
+                    <br>
+                    <br>
+                    <p>
+                        currently the vectors from origin to x, y, z disappear on user rotating the chart,
+                        this needs fixing - we also need some utilities - buttons for dedicated orientations where you -
+                        see the points in only 2 dimensions. For Example: (+x,+y), z axis comes toward you directly and
+                        you see y axis pointing up, x axis to the right and
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <button>do something</button>
+            </div>
+        </div>
+
+    </div>
+
     <script type="text/javascript" src="../static/js/dynamics.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </body>
 </html>
