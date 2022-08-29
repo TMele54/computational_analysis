@@ -9,9 +9,9 @@ def home():
     return render_template("index.html")
 
 
-@app.route('/smart')
-def smart():
-    return render_template("sentiment_dimensions.html")
+@app.route('/dynamics')
+def dynamics():
+    return render_template("dynamics.html")
 
 
 @app.route('/clock')
