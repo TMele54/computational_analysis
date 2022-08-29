@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>D3.JS for Digital Innovation</title>
+
+    <!--
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link type="text/css" href="https://mbostock.github.io/d3/style.css" rel="stylesheet" />
+    -->
+
+    <link type="text/css" href="../static/css/style.css" rel="stylesheet" />
+    <link rel="icon"  type="image/png"  href="favicon.ico">
+
+</head>
+<body>
+
+    <div class="container" id="scales">
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="h3" style="height:100px;">D3.js Version 3 - SVG and Scales</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="one"></div>
+            </div>
+            <div class="col-md-12">
+
+                <h5>0,0 is at the top left</h5>
+                <h5>Y increase from top to bottom</h5>
+                <h5>X increase from left to right</h5>
+                <h5>This is d3 you can change everything however you like</h5>
+                <h5>However, everyone uses this convention, stick with it..</h5>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+             <div class="col-md-12">
+                 <h1>Scales</h1>
+             </div>
+        </div>
+        <hr>
+    </div>
+    <div class="container" id="sliders">
+
+        <hr>
+        <div class="row">
+             <div class="col-md-12">
+                 <h1>Sliders</h1>
+             </div>
+        </div>
+        <hr>
+        <h5>Simple</h5>
+            <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-simple"></p></div>
+            <div class="col-sm"><div id="slider-simple"></div></div>
+        </div>
+        <hr>
+
+        <h5>Step</h5>
+            <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-step"></p></div>
+            <div class="col-sm"><div id="slider-step"></div></div>
+        </div>
+        <hr>
+
+        <h5>Time</h5>
+            <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-time"></p></div>
+            <div class="col-sm"><div id="slider-time"></div></div>
+        </div>
+        <hr>
+
+        <h5>Fill</h5>
+            <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-fill"></p></div>
+            <div class="col-sm"><div id="slider-fill"></div></div>
+        </div>
+        <hr>
+
+        <h5>Range</h5>
+            <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-range"></p></div>
+            <div class="col-sm"><div id="slider-range"></div></div>
+        </div>
+        <hr>
+
+        <h5>Vertical</h5>
+            <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-vertical"></p></div>
+            <div class="col-sm"><div id="slider-vertical"></div></div>
+        </div>
+        <hr>
+
+        <h5>Alternative handle</h5>
+            <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-alternative-handle"></p></div>
+            <div class="col-sm"><div id="slider-alternative-handle"></div></div>
+        </div>
+        <hr>
+
+        <h5>Transition</h5>
+            <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-transition"></p></div>
+            <div class="col-sm"><div id="slider-transition"></div></div>
+        </div>
+        <hr>
+
+        <h5>New York Times</h5>
+            <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-new-york-times"></p></div>
+            <div class="col-sm"><div id="slider-new-york-times"></div></div>
+        </div>
+        <hr>
+
+        <h5>Color picker</h5>
+            <div class="row align-items-center">
+            <div class="col-sm-2"><p id="value-color-picker"></p></div>
+            <div class="col-sm"><div id="slider-color-picker"></div></div>
+        </div>
+        <hr>
+
+    </div>
+    <div class="container" id="chartArea">
+
+        <div class="row">
+             <div class="col-md-12">
+                 <h1>Charts</h1>
+             </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="barChart"></div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <button class="randomize">randomize</button>
+                <div id="pieChart"></div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="lineChart"></div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="scatterPlotChart"></div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <h3>There are many charts..</h3>
+                <h5>https://github.com/d3/d3/wiki/Gallery</h5>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="eases">
+
+        <div class="row">
+             <div class="col-md-12">
+                 <h1>Easing Functions</h1>
+             </div>
+        </div>
+        <hr>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div id="ease"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="ObsHQ">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <h3>Advanced Examples</h3>
+                <h5></h5>
+                <div id="observablehq-48c46a4c"></div>
+                <script type="module">
+                    import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+                    import define from "https://api.observablehq.com/@mbostock/polar-clock.js?v=3";
+                    const inspect = Inspector.into("#observablehq-48c46a4c");
+                    (new Runtime).module(define, name => (name === "chart") && inspect());
+                </script>
+
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <div id="observablehq-d4242b75"></div>
+                <script type="module">
+                    import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+                    import define from "https://api.observablehq.com/@mariodelgadosr/webgl-globe.js?v=3";
+                    const inspect = Inspector.into("#observablehq-d4242b75");
+                    (new Runtime).module(define, name => (name === "container") && inspect());
+                </script>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+        <hr>
+    </div>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <!--<script type="text/javascript" src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script type="text/javascript" src="http://colorbrewer2.org/export/colorbrewer.js"></script>-->
+    <script type="text/javascript" src="../static/js/d3.js"></script>
+    <script type="text/javascript" src="../static/js/scales.js"></script>
+
+    <script type="text/javascript" src="../static/js/barChart.js"></script>
+    <script type="text/javascript" src="../static/js/pieChart.js"></script>
+
+    <!--
+        <script type="text/javascript" src="https://d3js.org/d3.v4.js"></script>
+    -->
+    <script type="text/javascript" src="../static/js/scatterPlotChart.js"></script>
+    <script type="text/javascript" src="../static/js/lineChart.js"></script>
+    <script type="text/javascript" src="../static/js/ease.js"></script>
+    <!--
+        <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/d3-simple-slider"></script>
+    -->
+    <script type="text/javascript" src="../static/js/sliders.js"></script>
+
+</body>
+</html>
+
+
+
