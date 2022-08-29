@@ -1,9 +1,10 @@
+// Initialize many variables
 var origin = [350, 325];
-var _alpha = Math.PI/4
-var _beta = 0.615472907
-var _data = []
-var max = 11
-var min = -10
+var _alpha = Math.PI/4;
+var _beta = 0.615472907;
+var _data = [];
+var max = 11;
+var min = -10;
 var rad = Math.PI/180;
 var cnt = 0;
 var j = 10;
@@ -32,47 +33,41 @@ var mouseZ;
 
 var grid3d = d3._3d().shape('GRID', 20).origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
 var point3d = d3._3d().x(function(d){ return d.x;}).y(function(d){ return d.y;}).z(function(d){ return d.z;}).origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
+
 var xScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
 var yScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
 var zScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
 var vector3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
+
+// Make random numbers for the domain vectors
 var rn = function(min, max){ return Math.round(d3.randomUniform(min, max + 1)()); };
 
 function processData(data, tt){
+
+    // Tooltip for scatter data
     var div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
 
+    // A grid that is no longer being used, but keeping the code for now
     var xGrid = svg.selectAll('path.grid').data(data[0], key);
     xGrid.enter().append('path').attr('class', '_3d grid').merge(xGrid).attr('stroke', 'black').attr('stroke-width', 0.3).attr('fill', function(d){ return d.ccw ? 'lightgrey' : '#717171'; }).attr('fill-opacity', 0.9).attr('d', grid3d.draw);
     xGrid.exit().remove();
 
+    // Coloring Mechanism to make scatter data look like a sphere not a circle
     //Append a defs (for definition) element to your SVG
     var defs = svg.append("defs");
 
     //Append a radialGradient element to the defs and give it a unique id
-    var radialGradient = defs.append("radialGradient")
-                                .attr("id", "radial-gradient")
-                                .attr("cx", "50%")
-                                .attr("cy", "50%")
-                                .attr("r", "50%");
+    var radialGradient = defs.append("radialGradient").attr("id", "radial-gradient").attr("cx", "50%").attr("cy", "50%").attr("r", "50%");
 
     //Add colors to make the gradient appear like a Sun
-    radialGradient.append("stop")
-        .attr("offset", "25%")
-        .attr("stop-color", "#FFF76B");
+    radialGradient.append("stop").attr("offset", "25%").attr("stop-color", "#ff004f");
+    radialGradient.append("stop").attr("offset", "50%").attr("stop-color", "#ff004f");
+    radialGradient.append("stop").attr("offset", "90%").attr("stop-color", "#9c8c07");
+    radialGradient.append("stop").attr("offset", "100%").attr("stop-color", "#844800");
 
-    radialGradient.append("stop")
-        .attr("offset", "50%")
-        .attr("stop-color", "#FFF845");
-
-    radialGradient.append("stop")
-        .attr("offset", "90%")
-        .attr("stop-color", "#FFDA4E");
-
-    radialGradient.append("stop")
-        .attr("offset", "100%")
-        .attr("stop-color", "#FB8933");
-
+    // Added scatter data to the SVG
     var points = svg.selectAll('circle').data(data[1], key);
+
     points
         .enter()
         .append('circle')
@@ -82,9 +77,8 @@ function processData(data, tt){
             .attr('cy', posPointY)
             .merge(points)
             .on('mouseover', function (d, i) {
-                d3.select(this).transition().duration('100').attr("r", 12);  //Makes div appear
+                d3.select(this).transition().duration('100').attr("r", 12);
                 div.transition().duration(100).style("opacity", 1);
-                //div.html("["+"x="+d.x+", y="+d.y+", z="+d.z+"]")
                 div.html("Position: [ "+d.x+", "+d.y+", "+d.z+" ]")
                         .style("left", (d3.event.pageX + 10) + "px")
                         .style("top", (d3.event.pageY - 15) + "px");
@@ -98,9 +92,11 @@ function processData(data, tt){
             .duration(tt)
                 .attr('r', 6)
                 .attr('stroke', function(d){
+
                     return d3.color(color(d.id)).darker(3);
                 })
                 .attr('fill', function(d){
+
                     return color(d.id);
                 })
                 .attr('opacity', 1)
@@ -108,32 +104,32 @@ function processData(data, tt){
                 .attr('cx', posPointX)
                 .attr('cy', posPointY)
 
+    //points.exit().remove();
 
-
-
-
-
-
-
-
-
-    points.exit().remove();
-
+    // all of these are just lines in the 3d space
     var xScale = svg.selectAll('path.xScale').data(data[2]);
     var yScale = svg.selectAll('path.yScale').data(data[3]);
     var zScale = svg.selectAll('path.zScale').data(data[4]);
-    var vect = svg.selectAll('path.vectors').data(data[5]);
+    var vector = svg.selectAll('path.vectors').data(data[5]);
 
-    xScale.enter().append('path').attr('class', '_3d xScale').merge(xScale).attr('stroke', 'red').attr('stroke-width', 1).attr('d', xScale3d.draw);
-    yScale.enter().append('path').attr('class', '_3d yScale').merge(yScale).attr('stroke', 'green').attr('stroke-width', 1).attr('d', yScale3d.draw);
-    zScale.enter().append('path').attr('class', '_3d zScale').merge(zScale).attr('stroke', 'blue').attr('stroke-width', 1).attr('d', zScale3d.draw);
-    vect.enter().append('path').attr('class', '_3d vectors').merge(vect).attr('stroke', 'orange').attr('stroke-width', 2).attr('d', vector3d.draw);
+    console.log("VECT:", vector)
 
-    xScale.exit().remove();
-    yScale.exit().remove();
-    zScale.exit().remove();
-    vect.exit().remove();
+    xScale.enter().append('path').attr('class', '_3d xScale').merge(xScale).attr('stroke', "#280808").attr('stroke-width', 1).attr('d', xScale3d.draw);
+    yScale.enter().append('path').attr('class', '_3d yScale').merge(yScale).attr('stroke', "#280808").attr('stroke-width', 1).attr('d', yScale3d.draw);
+    zScale.enter().append('path').attr('class', '_3d zScale').merge(zScale).attr('stroke', "#280808").attr('stroke-width', 1).attr('d', zScale3d.draw);
+    vector.enter().append('path').attr('class', '_3d vector').merge(vector).attr('stroke', "#335b98").attr('stroke-width', 2).attr('d', vector3d.draw);
 
+             //  .merge(vect)
+             //  .attr('stroke', 'orange').attr('stroke-width', 2).attr('d', vector3d.draw);
+
+    console.log("__VECT__:", vector)
+
+    //xScale.exit().remove();
+    //yScale.exit().remove();
+    //zScale.exit().remove();
+    //vect.exit().remove();
+
+    // Adding text to the axis lines, will need text in more places
     var xText = svg.selectAll('text.xText').data(data[2][0]);
     var yText = svg.selectAll('text.yText').data(data[3][0]);
     var zText = svg.selectAll('text.zText').data(data[4][0]);
@@ -142,10 +138,11 @@ function processData(data, tt){
     yText.enter().append('text').attr('class', '_3d yText').attr('dx', '.3em').merge(yText).each(function(d){ d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}}).attr('x', function(d){ return d.projected.x; }).attr('y', function(d){ return d.projected.y; }).attr('z', function(d){ return d.projected.z; }).text(function(d){ return d[1]});
     zText.enter().append('text').attr('class', '_3d zText').attr('dx', '.3em').merge(zText).each(function(d){ d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}}).attr('x', function(d){ return d.projected.x; }).attr('y', function(d){ return d.projected.y; }).attr('z', function(d){ return d.projected.z; }).text(function(d){ return d[2]});
 
-    xText.exit().remove();
-    yText.exit().remove();
-    zText.exit().remove();
+    //xText.exit().remove();
+    //yText.exit().remove();
+    //zText.exit().remove();
 
+    // Sort the elements, idk what this is for
     d3.selectAll('._3d').sort(d3._3d().sort);
 
 }
@@ -171,7 +168,7 @@ function dragged(){
     alpha  = (d3.event.y - my + mouseY) * Math.PI / 230 ;
     gamma  = (d3.event.z - mz + mouseZ) * Math.PI / 230 * (-1);
 
-    //          .rotateZ(gamma - startingAngle)
+    // .rotateZ(gamma - startingAngle)
 
     var data = [
         grid3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(xGrid),
