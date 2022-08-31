@@ -1,56 +1,68 @@
 // Initialize many variables
-var origin = [350, 325];
-var _alpha = Math.PI/4;
-var _beta = 0.615472907;
-var _data = [];
-var max = 11;
-var min = -10;
-var rad = Math.PI/180;
-var cnt = 0;
-var j = 10;
-var scale = 30;
-var scatter = [];
-var xLine = [];
-var yLine = [];
-var zLine = [];
-var vectors = [];
-var xGrid = [];
-var alpha = 0;
-var beta = 0;
-var gamma = 0;
-var key = function(d){ return d.id; };
-var startAngle = 90; // Math.PI/3;
-var svg = d3.select('#smart').append("svg").attr("width", 1050).attr("height", 600).call(d3.drag().on('drag', dragged).on('start', dragStart).on('end', dragEnd)).append('g');
-var color = d3.scaleOrdinal(d3.schemeCategory20);
 
-var mx;
-var my;
-var mz;
+var origin = [400, 375],
+_alpha = Math.PI/4,
+_beta = 0.615472907,
+_data = [],
+max = 11,
+min = -10,
+rad = Math.PI/180,
+cnt = 0,
+j = 10,
+scale = 25,
+scatter = [],
+xLine = [],
+yLine = [],
+zLine = [],
+vectors = [],
+xGrid = [],
+alpha = 0,
+beta = 0,
+gamma = 0,
+startAngle = 90, // Math.PI/3;
+color = d3.scaleOrdinal(d3.schemeCategory20),
+domains = ["A","B","C","D","E","F","G","H","I","J"],
+mx,
+my,
+mz,
+mouseX,
+mouseY,
+mouseZ,
+key = function(d){ return d.id; };
 
-var mouseX;
-var mouseY;
-var mouseZ;
-
+var svg = d3.select('#dynamic').append("svg").attr("width", 1050).attr("height", 600).call(d3.drag().on('drag', dragged).on('start', dragStart).on('end', dragEnd)).append('g');
 var grid3d = d3._3d().shape('GRID', 20).origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
-var point3d = d3._3d().x(function(d){ return d.x;}).y(function(d){ return d.y;}).z(function(d){ return d.z;}).origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
-
 var xScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
 var yScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
 var zScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
-var vector3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
+
+var point3d = d3._3d()
+                        .x(function(d){ return d.x;})
+                        .y(function(d){ return d.y;})
+                        .z(function(d){ return d.z;})
+                            .origin(origin)
+                            .rotateX(startAngle)
+                            .rotateY(startAngle)
+                            .rotateZ(startAngle)
+                                .scale(scale);
+// x,y,z here project a vectors x,y,z to a 2d x and y that are drawn on top and the 3d illusion is shown
+// developer of 3d-d3 didnt code x1 and x2, only x1, so x and y for origin are manually put at 400, 375 based on the origin
+var vector3d = d3._3d()
+                        .x(function(d){ return d.x1; })
+                        .y(function(d){ return d.y1; })
+                        .z(function(d){ return d.z1; })
+                            .origin(origin)
+                            .rotateX(startAngle)
+                            .rotateY(startAngle)
+                            .rotateZ(startAngle)
+                                .scale(scale);
 
 // Make random numbers for the domain vectors
 var rn = function(min, max){ return Math.round(d3.randomUniform(min, max + 1)()); };
 
 function processData(data, tt){
-
     // Tooltip for scatter data
     var div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
-
-    // A grid that is no longer being used, but keeping the code for now
-    var xGrid = svg.selectAll('path.grid').data(data[0], key);
-    xGrid.enter().append('path').attr('class', '_3d grid').merge(xGrid).attr('stroke', 'black').attr('stroke-width', 0.3).attr('fill', function(d){ return d.ccw ? 'lightgrey' : '#717171'; }).attr('fill-opacity', 0.9).attr('d', grid3d.draw);
-    xGrid.exit().remove();
 
     // Coloring Mechanism to make scatter data look like a sphere not a circle
     //Append a defs (for definition) element to your SVG
@@ -82,52 +94,66 @@ function processData(data, tt){
                 div.html("Position: [ "+d.x+", "+d.y+", "+d.z+" ]")
                         .style("left", (d3.event.pageX + 10) + "px")
                         .style("top", (d3.event.pageY - 15) + "px");
-
             })
             .on('mouseout', function (d, i) {
                 d3.select(this).transition().duration('200').attr("r", 6);
                 div.transition().duration('200').style("opacity", 0);
             })
-            .transition()
-            .duration(tt)
-                .attr('r', 6)
-                .attr('stroke', function(d){
+                .transition()
+                .duration(tt)
+                    .attr('r', 6)
+                    .attr('stroke', function(d){
+                        return d3.color(color(d.id)).darker(3);
+                    })
+                    .attr('fill', function(d){
+                        return color(d.id);
+                    })
+                    .attr('opacity', 1)
+                    .style("fill", "url(#radial-gradient)")
+                    .attr('cx', posPointX)
+                    .attr('cy', posPointY)
 
-                    return d3.color(color(d.id)).darker(3);
-                })
-                .attr('fill', function(d){
+    var vectors = svg.selectAll('line').data(data[5], key);
 
-                    return color(d.id);
-                })
-                .attr('opacity', 1)
-                .style("fill", "url(#radial-gradient)")
-                .attr('cx', posPointX)
-                .attr('cy', posPointY)
+    vectors
+        .enter()
+        .append('line')
+            .attr('class', '_3d line')
+            .merge(vectors)
+            .each(function(d){
+                d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}
+            })
+            .attr("x1", origin[0])
+            .attr("y1", origin[1])
+            .attr("z1", 0)
+            .attr("x2", posPointX)
+            .attr("y2", posPointY)
+            .attr("z2", posPointZ)
+            .style("stroke", "black")
+            .style("fill", "black")
+            .style("stroke-width", "5")
+            .style("stroke-dasharray", "4,2")
+            .style("shape-rendering", "crispEdges")
 
-    //points.exit().remove();
+    /*
+        .each(function(d){d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}})
+        .attr('x', function(d){return d.projected.x;})
+        .attr('y', function(d){return d.projected.y;})
+        .attr('z', function(d){return d.projected.z;})
+    */
 
     // all of these are just lines in the 3d space
     var xScale = svg.selectAll('path.xScale').data(data[2]);
     var yScale = svg.selectAll('path.yScale').data(data[3]);
     var zScale = svg.selectAll('path.zScale').data(data[4]);
-    var vector = svg.selectAll('path.vectors').data(data[5]);
-
-    console.log("VECT:", vector)
 
     xScale.enter().append('path').attr('class', '_3d xScale').merge(xScale).attr('stroke', "#280808").attr('stroke-width', 1).attr('d', xScale3d.draw);
     yScale.enter().append('path').attr('class', '_3d yScale').merge(yScale).attr('stroke', "#280808").attr('stroke-width', 1).attr('d', yScale3d.draw);
     zScale.enter().append('path').attr('class', '_3d zScale').merge(zScale).attr('stroke', "#280808").attr('stroke-width', 1).attr('d', zScale3d.draw);
-    vector.enter().append('path').attr('class', '_3d vector').merge(vector).attr('stroke', "#335b98").attr('stroke-width', 2).attr('d', vector3d.draw);
 
-             //  .merge(vect)
-             //  .attr('stroke', 'orange').attr('stroke-width', 2).attr('d', vector3d.draw);
-
-    console.log("__VECT__:", vector)
-
-    //xScale.exit().remove();
-    //yScale.exit().remove();
-    //zScale.exit().remove();
-    //vect.exit().remove();
+    xScale.exit().remove();
+    yScale.exit().remove();
+    zScale.exit().remove();
 
     // Adding text to the axis lines, will need text in more places
     var xText = svg.selectAll('text.xText').data(data[2][0]);
@@ -138,28 +164,27 @@ function processData(data, tt){
     yText.enter().append('text').attr('class', '_3d yText').attr('dx', '.3em').merge(yText).each(function(d){ d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}}).attr('x', function(d){ return d.projected.x; }).attr('y', function(d){ return d.projected.y; }).attr('z', function(d){ return d.projected.z; }).text(function(d){ return d[1]});
     zText.enter().append('text').attr('class', '_3d zText').attr('dx', '.3em').merge(zText).each(function(d){ d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}}).attr('x', function(d){ return d.projected.x; }).attr('y', function(d){ return d.projected.y; }).attr('z', function(d){ return d.projected.z; }).text(function(d){ return d[2]});
 
-    //xText.exit().remove();
-    //yText.exit().remove();
-    //zText.exit().remove();
+    xText.exit().remove();
+    yText.exit().remove();
+    zText.exit().remove();
 
-    // Sort the elements, idk what this is for
     d3.selectAll('._3d').sort(d3._3d().sort);
 
-}
+};
 function posPointX(d){
     return d.projected.x;
-}
+};
 function posPointY(d){
     return d.projected.y;
-}
+};
 function posPointZ(d){
     return d.projected.z;
-}
+};
 function dragStart(){
     mx = d3.event.x;
     my = d3.event.y;
     mz = d3.event.z;
-}
+};
 function dragged(){
     mouseX = mouseX || 0;
     mouseY = mouseY || 0;
@@ -176,82 +201,91 @@ function dragged(){
         xScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([xLine]),
         yScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([yLine]),
         zScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([zLine]),
-        vector3d.rotateX(alpha - startAngle).rotateY(beta - startAngle)([vectors]),
+        vector3d.rotateX(alpha - startAngle).rotateY(beta - startAngle)(vectors),
     ];
 
     processData(data, 10);
 
-}
+};
 function dragEnd(){
     mouseX = d3.event.x - mx + mouseX;
     mouseY = d3.event.y - my + mouseY;
     mouseZ = d3.event.z - mz + mouseZ;
-}
+};
 
 function init(){
 
     //init vars
-    cnt,xGrid,scatter,xLine,yLine,zLine,vectors
+    cnt,xGrid,scatter,xLine,yLine,zLine,vectors,domains
 
     // sample scatter data
     scatter = [
-                {'x': 6, 'y': 6, 'z': 4, 'id': 'point_0', 'index': '0', 'break': '75%'},
-                {'x': 1, 'y': 4, 'z': 3, 'id': 'point_1', 'index': '1', 'break': '75%'},
-                {'x': 4, 'y': 5, 'z': 2, 'id': 'point_2', 'index': '2', 'break': '50%'},
-                {'x': 3, 'y': 4, 'z': 8, 'id': 'point_3', 'index': '3', 'break': '75%'},
-                {'x': 1, 'y': 1, 'z': 4, 'id': 'point_4', 'index': '4', 'break': '50%'},
-                {'x': 8, 'y': 2, 'z': 2, 'id': 'point_5', 'index': '5', 'break': '50%'},
-                {'x': 4, 'y': 0, 'z': 7, 'id': 'point_6', 'index': '6', 'break': '75%'},
-                {'x': 1, 'y': 9, 'z': 2, 'id': 'point_7', 'index': '7', 'break': '75%'},
-                {'x': 9, 'y': 9, 'z': 9, 'id': 'point_8', 'index': '8', 'break': '100%'},
-                {'x': 7, 'y': 1, 'z': 3, 'id': 'point_9', 'index': '9', 'break': '75%'},
-                {'x': 4, 'y': 2, 'z': 6, 'id': 'point_10', 'index': '10', 'break': '0%'},
-                {'x': 1, 'y': 3, 'z': 7, 'id': 'point_11', 'index': '11', 'break': '75%'},
-                {'x': 2, 'y': 8, 'z': 2, 'id': 'point_12', 'index': '12', 'break': '0%'},
-                {'x': 7, 'y': 1, 'z': 1, 'id': 'point_13', 'index': '13', 'break': '0%'},
-                {'x': 7, 'y': 9, 'z': 1, 'id': 'point_14', 'index': '14', 'break': '100%'},
-                {'x': 3, 'y': 4, 'z': 5, 'id': 'point_15', 'index': '15', 'break': '50%'},
-                {'x': 2, 'y': 1, 'z': 9, 'id': 'point_16', 'index': '16', 'break': '0%'},
-                {'x': 9, 'y': 1, 'z': 6, 'id': 'point_17', 'index': '17', 'break': '0%'},
-                {'x': 4, 'y': 1, 'z': 3, 'id': 'point_18', 'index': '18', 'break': '100%'},
-                {'x': 7, 'y': 4, 'z': 0, 'id': 'point_19', 'index': '19', 'break': '0%'},
-                {'x': 1, 'y': 5, 'z': 3, 'id': 'point_20', 'index': '20', 'break': '0%'},
-                {'x': 6, 'y': 1, 'z': 2, 'id': 'point_21', 'index': '21', 'break': '50%'},
-                {'x': 8, 'y': 3, 'z': 1, 'id': 'point_22', 'index': '22', 'break': '0%'},
-                {'x': 4, 'y': 3, 'z': 9, 'id': 'point_23', 'index': '23', 'break': '50%'},
-                {'x': 6, 'y': 4, 'z': 4, 'id': 'point_24', 'index': '24', 'break': '50%'},
-                {'x': 6, 'y': 1, 'z': 7, 'id': 'point_25', 'index': '25', 'break': '50%'},
-                {'x': 9, 'y': 9, 'z': 5, 'id': 'point_26', 'index': '26', 'break': '0%'},
-                {'x': 9, 'y': 5, 'z': 6, 'id': 'point_27', 'index': '27', 'break': '75%'},
-                {'x': 8, 'y': 6, 'z': 6, 'id': 'point_28', 'index': '28', 'break': '50%'},
-                {'x': 6, 'y': 5, 'z': 5, 'id': 'point_29', 'index': '29', 'break': '0%'},
-                {'x': 2, 'y': 3, 'z': 7, 'id': 'point_30', 'index': '30', 'break': '100%'},
-                {'x': 3, 'y': 6, 'z': 3, 'id': 'point_31', 'index': '31', 'break': '100%'},
-                {'x': 6, 'y': 2, 'z': 1, 'id': 'point_32', 'index': '32', 'break': '50%'},
-                {'x': 7, 'y': 5, 'z': 5, 'id': 'point_33', 'index': '33', 'break': '75%'},
-                {'x': 9, 'y': 2, 'z': 9, 'id': 'point_34', 'index': '34', 'break': '50%'},
-                {'x': 0, 'y': 9, 'z': 4, 'id': 'point_35', 'index': '35', 'break': '50%'},
-                {'x': 5, 'y': 6, 'z': 1, 'id': 'point_36', 'index': '36', 'break': '0%'},
-
-    ]
+        {'x': 8, 'y': -9, 'z': -6, 'id': 'point_0', 'index': '0', 'break': '0%'},
+        {'x': -4, 'y': -5, 'z': 5, 'id': 'point_1', 'index': '1', 'break': '0%'},
+        {'x': -10, 'y': -10, 'z': 1, 'id': 'point_2', 'index': '2', 'break': '100%'},
+        {'x': -6, 'y': -9, 'z': 4, 'id': 'point_3', 'index': '3', 'break': '50%'},
+        {'x': 2, 'y': 4, 'z': -7, 'id': 'point_4', 'index': '4', 'break': '100%'},
+        {'x': 8, 'y': -6, 'z': 3, 'id': 'point_5', 'index': '5', 'break': '100%'},
+        {'x': 6, 'y': 6, 'z': -7, 'id': 'point_6', 'index': '6', 'break': '50%'},
+        {'x': 6, 'y': 4, 'z': 4, 'id': 'point_7', 'index': '7', 'break': '0%'},
+        {'x': -10, 'y': -9, 'z': 5, 'id': 'point_8', 'index': '8', 'break': '0%'},
+        {'x': -9, 'y': -6, 'z': 8, 'id': 'point_9', 'index': '9', 'break': '100%'},
+        {'x': 8, 'y': 2, 'z': -2, 'id': 'point_10', 'index': '10', 'break': '0%'},
+        {'x': 4, 'y': -10, 'z': 7, 'id': 'point_11', 'index': '11', 'break': '100%'},
+        {'x': 0, 'y': -4, 'z': 5, 'id': 'point_12', 'index': '12', 'break': '50%'},
+        {'x': 3, 'y': -1, 'z': 5, 'id': 'point_13', 'index': '13', 'break': '0%'},
+        {'x': 4, 'y': -9, 'z': 0, 'id': 'point_14', 'index': '14', 'break': '50%'},
+        {'x': -8, 'y': -10, 'z': 0, 'id': 'point_15', 'index': '15', 'break': '0%'},
+        {'x': 9, 'y': 7, 'z': 1, 'id': 'point_16', 'index': '16', 'break': '50%'},
+        {'x': 0, 'y': -5, 'z': 3, 'id': 'point_17', 'index': '17', 'break': '50%'},
+        {'x': -6, 'y': 6, 'z': 0, 'id': 'point_18', 'index': '18', 'break': '100%'},
+        {'x': -3, 'y': 4, 'z': -9, 'id': 'point_19', 'index': '19', 'break': '50%'},
+        {'x': -6, 'y': 3, 'z': -7, 'id': 'point_20', 'index': '20', 'break': '75%'},
+        {'x': 0, 'y': -4, 'z': 7, 'id': 'point_21', 'index': '21', 'break': '50%'},
+        {'x': 9, 'y': -8, 'z': 8, 'id': 'point_22', 'index': '22', 'break': '50%'},
+        {'x': 3, 'y': -4, 'z': 0, 'id': 'point_23', 'index': '23', 'break': '75%'},
+        {'x': -10, 'y': 5, 'z': 5, 'id': 'point_24', 'index': '24', 'break': '50%'},
+        {'x': -7, 'y': 5, 'z': 0, 'id': 'point_25', 'index': '25', 'break': '0%'},
+        {'x': 2, 'y': -5, 'z': 1, 'id': 'point_26', 'index': '26', 'break': '100%'},
+        {'x': -8, 'y': -9, 'z': 8, 'id': 'point_27', 'index': '27', 'break': '75%'},
+        {'x': 5, 'y': -7, 'z': -10, 'id': 'point_28', 'index': '28', 'break': '100%'},
+        {'x': 2, 'y': -2, 'z': 1, 'id': 'point_29', 'index': '29', 'break': '100%'},
+        {'x': 8, 'y': 7, 'z': 2, 'id': 'point_30', 'index': '30', 'break': '0%'},
+        {'x': -5, 'y': 8, 'z': 2, 'id': 'point_31', 'index': '31', 'break': '75%'},
+        {'x': 9, 'y': -3, 'z': -10, 'id': 'point_32', 'index': '32', 'break': '75%'},
+        {'x': 5, 'y': -1, 'z': 4, 'id': 'point_33', 'index': '33', 'break': '0%'},
+        {'x': 9, 'y': 8, 'z': -5, 'id': 'point_34', 'index': '34', 'break': '0%'},
+        {'x': 8, 'y': 5, 'z': -3, 'id': 'point_35', 'index': '35', 'break': '0%'},
+        {'x': -10, 'y': 8, 'z': -7, 'id': 'point_36', 'index': '36', 'break': '0%'},
+        {'x': -2, 'y': -8, 'z': 3, 'id': 'point_37', 'index': '37', 'break': '75%'},
+        {'x': 0, 'y': 6, 'z': -8, 'id': 'point_38', 'index': '38', 'break': '100%'},
+        {'x': -4, 'y': -1, 'z': -4, 'id': 'point_39', 'index': '39', 'break': '100%'},
+        {'x': -10, 'y': -8, 'z': 0, 'id': 'point_40', 'index': '40', 'break': '50%'},
+        {'x': 7, 'y': 4, 'z': 3, 'id': 'point_41', 'index': '41', 'break': '50%'},
+        {'x': -4, 'y': 5, 'z': -5, 'id': 'point_42', 'index': '42', 'break': '0%'},
+        {'x': -9, 'y': -5, 'z': -4, 'id': 'point_43', 'index': '43', 'break': '75%'},
+        {'x': 7, 'y': 1, 'z': -4, 'id': 'point_44', 'index': '44', 'break': '75%'},
+        {'x': 0, 'y': 4, 'z': -5, 'id': 'point_45', 'index': '45', 'break': '0%'},
+        {'x': -1, 'y': 1, 'z': 8, 'id': 'point_46', 'index': '46', 'break': '75%'},
+        {'x': -1, 'y': -3, 'z': 6, 'id': 'point_47', 'index': '47', 'break': '0%'},
+        {'x': 2, 'y': -6, 'z': 8, 'id': 'point_48', 'index': '48', 'break': '0%'},
+        {'x': -8, 'y': -10, 'z': -3, 'id': 'point_49', 'index': '49', 'break': '0%'},
+    ];
 
     // x, y, z axis data
     d3.range(min, max, 1).forEach(function(d){ xLine.push([d, 0, 0]); });
     d3.range(min, max, 1).forEach(function(d){ yLine.push([0, d, 0]); });
     d3.range(min, max, 1).forEach(function(d){ zLine.push([0, 0, d]); });
-    //d3.range(min, max, 1).forEach(function(d){ vectors.push([0, 0, d]); });
 
-    // domain vector data
-    [0,0,0,0,0,0,0,0,0,0].forEach(function(d){
-        vectors.push([
-                [0, 0, 0],
-                [
-                    rn(min, max),
-                    rn(min, max),
-                    rn(min, max)
-                ]]
-        )
-    })
+    vectors = [
+        {'x': 0, 'y': 0, 'z': 0, 'x1': 8, 'y1': 9, 'z1': -2, 'id': 'point_0', 'index': '0'},
+        {'x': 0, 'y': 0, 'z': 0, 'x1': -3, 'y1': 2, 'z1': -5, 'id': 'point_1', 'index': '1'},
+        {'x': 0, 'y': 0, 'z': 0, 'x1': 4, 'y1': 4, 'z1': 8, 'id': 'point_2', 'index': '2'},
+        {'x': 0, 'y': 0, 'z': 0, 'x1': -6, 'y1': 9, 'z1': 5, 'id': 'point_3', 'index': '3'},
+        {'x': 0, 'y': 0, 'z': 0, 'x1': 3, 'y1': 0, 'z1': -9, 'id': 'point_4', 'index': '4'},
+        {'x': 0, 'y': 0, 'z': 0, 'x1': -8, 'y1': 8, 'z1': 2, 'id': 'point_5', 'index': '5'},
+        {'x': 0, 'y': 0, 'z': 0, 'x1': 3, 'y1': 9, 'z1': 5, 'id': 'point_6', 'index': '6'},
+    ];
 
     var data = [
         grid3d(xGrid),
