@@ -37,7 +37,9 @@ mz,
 mouseX,
 mouseY,
 mouseZ,
-key = function(d){ return d.id; };
+key = function(d){ return d.id; },
+point_tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0),
+vector_tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
 
 var svg = d3.select('#dynamic').append("svg").attr("width", 1050).attr("height", 600).call(d3.drag().on('drag', dragged).on('start', dragStart).on('end', dragEnd)).append('g');
 var grid3d = d3._3d().shape('GRID', 20).origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
@@ -50,8 +52,6 @@ var point3d = d3._3d()
                     .origin(origin).scale(scale)
                     .rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle);
 
-// x,y,z here project a vectors x,y,z to a 2d x and y that are drawn on top and the 3d illusion is shown
-// developer of 3d-d3 didnt code x1 and x2, only x1, so x and y for origin are manually put at 400, 375 based on the origin
 var vector3d = d3._3d()
                     .x(function(d){ return d.x1; }).y(function(d){ return d.y1; }).z(function(d){ return d.z1; })
                     .origin(origin).scale(scale)
@@ -61,9 +61,7 @@ var vector3d = d3._3d()
 var rn = function(min, max){ return Math.round(d3.randomUniform(min, max + 1)()); };
 
 function processData(data, tt){
-    // Tooltip for scatter data
-    var div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
-
+    point_tooltip,vector_tooltip
     // Coloring Mechanism to make scatter data look like a sphere not a circle
     //Append a defs (for definition) element to your SVG
     var defs = svg.append("defs");
@@ -84,20 +82,25 @@ function processData(data, tt){
         .enter()
         .append('circle')
             .attr('class', '_3d')
+            .attr("id", function(d){ return d.id})
             .attr('opacity', 0)
             .attr('cx', posPointX)
             .attr('cy', posPointY)
             .merge(points)
             .on('mouseover', function (d, i) {
                 d3.select(this).transition().duration('100').attr("r", 12);
-                div.transition().duration(100).style("opacity", 1);
-                div.html("Position: [ "+d.x+", "+d.y+", "+d.z+" ]")
+                point_tooltip.transition().duration(100).style("opacity", 1);
+                point_tooltip.html("Position: [ "+d.x+", "+d.y+", "+d.z+" ]")
                         .style("left", (d3.event.pageX + 10) + "px")
                         .style("top", (d3.event.pageY - 15) + "px");
+                d3.selectAll("circle").attr('opacity', 0.1)
+                d3.select(this).attr('opacity', 1)
+
             })
             .on('mouseout', function (d, i) {
                 d3.select(this).transition().duration('200').attr("r", 6);
-                div.transition().duration('200').style("opacity", 0);
+                point_tooltip.transition().duration('200').style("opacity", 0);
+                d3.selectAll("circle").attr('opacity', 1)
             })
                 .transition()
                 .duration(tt)
@@ -130,17 +133,35 @@ function processData(data, tt){
             .attr("y2", posPointY)
             .attr("z2", posPointZ)
             .style("stroke", "black")
-            .style("fill", "black")
             .style("stroke-width", "5")
             .style("stroke-dasharray", "4,2")
             .style("shape-rendering", "crispEdges")
+            .on('mouseover', function (d, i) {
+                d3.select(this).transition().duration('10')
+                        .style("stroke", "red")
+                        .style("stroke-width", "5")
+                        .style("stroke-dasharray", "5000,2")
 
-    /*
-        .each(function(d){d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}})
-        .attr('x', function(d){return d.projected.x;})
-        .attr('y', function(d){return d.projected.y;})
-        .attr('z', function(d){return d.projected.z;})
-    */
+                vector_tooltip.transition().duration(100).style("opacity", 1);
+                vector_tooltip
+                        .html("Position: [ 0, 0, 0 ] => [ "+d.x1+", "+d.y1+", "+d.z1+" ]")
+                        .style("left", (d3.event.pageX + 10) + "px")
+                        .style("top", (d3.event.pageY - 15) + "px");
+
+                d3.selectAll("line").attr('opacity', 0.1)
+                d3.select(this).attr('opacity', 1)
+
+            })
+            .on('mouseout', function (d, i) {
+                d3.select(this).transition().duration('1000')
+                        .style("stroke", "black")
+                        .style("stroke-width", "5")
+                        .style("stroke-dasharray", "4,2")
+
+                vector_tooltip.transition().duration('200').style("opacity", 0);
+
+                d3.selectAll("line").attr('opacity', 1)
+            })
 
     // all of these are just lines in the 3d space
     var xScale = svg.selectAll('path.xScale').data(data[2]);
@@ -186,6 +207,8 @@ function dragStart(){
     mz = d3.event.z;
 };
 function dragged(){
+    point_tooltip, vector_tooltip
+
     mouseX = mouseX || 0;
     mouseY = mouseY || 0;
 
@@ -206,6 +229,8 @@ function dragged(){
         vector3d.rotateX(alpha - startAngleX).rotateY(beta - startAngleY)(vectors),
     ];
 
+    vector_tooltip.style("opacity", 0);
+    point_tooltip.style("opacity", 0);
     processData(data, 10);
 
 };
@@ -236,6 +261,63 @@ function orientation(type){
     processData(data, 10);
 
 };
+
+function filter_points(_id){
+
+    _scatter = []
+
+    scatter.forEach((d) => {
+        console.log(d.id)
+        if (d.id == _id){
+            _scatter.push(d)
+        }else{
+            d3.select("#"+d.id).remove()
+        }
+    })
+
+    //d3.selectAll("circle").remove()
+
+    //scatter =
+    var data = [
+        grid3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(xGrid),
+        point3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(_scatter),
+        xScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([xLine]),
+        yScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([yLine]),
+        zScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([zLine]),
+        vector3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(vectors),
+    ];
+
+    processData(data, 10);
+
+}
+function filter_vectors(_id){
+
+    _vectors = []
+
+    vectors.forEach((d) => {
+        if (d.id == _id){
+            _vectors.push(d)
+        }else{
+
+        }
+    })
+
+    d3.selectAll("line").remove()
+
+    //scatter =
+    var data = [
+        grid3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(xGrid),
+        point3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(scatter),
+        xScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([xLine]),
+        yScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([yLine]),
+        zScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([zLine]),
+        vector3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(_vectors),
+    ];
+
+    processData(data, 10);
+
+}
+
 function init(){
 
     //init vars
@@ -269,30 +351,6 @@ function init(){
         {'x': 3, 'y': -4, 'z': 0, 'id': 'point_23', 'index': '23', 'break': '75%'},
         {'x': -10, 'y': 5, 'z': 5, 'id': 'point_24', 'index': '24', 'break': '50%'},
         {'x': -7, 'y': 5, 'z': 0, 'id': 'point_25', 'index': '25', 'break': '0%'},
-        {'x': 2, 'y': -5, 'z': 1, 'id': 'point_26', 'index': '26', 'break': '100%'},
-        {'x': -8, 'y': -9, 'z': 8, 'id': 'point_27', 'index': '27', 'break': '75%'},
-        {'x': 5, 'y': -7, 'z': -10, 'id': 'point_28', 'index': '28', 'break': '100%'},
-        {'x': 2, 'y': -2, 'z': 1, 'id': 'point_29', 'index': '29', 'break': '100%'},
-        {'x': 8, 'y': 7, 'z': 2, 'id': 'point_30', 'index': '30', 'break': '0%'},
-        {'x': -5, 'y': 8, 'z': 2, 'id': 'point_31', 'index': '31', 'break': '75%'},
-        {'x': 9, 'y': -3, 'z': -10, 'id': 'point_32', 'index': '32', 'break': '75%'},
-        {'x': 5, 'y': -1, 'z': 4, 'id': 'point_33', 'index': '33', 'break': '0%'},
-        {'x': 9, 'y': 8, 'z': -5, 'id': 'point_34', 'index': '34', 'break': '0%'},
-        {'x': 8, 'y': 5, 'z': -3, 'id': 'point_35', 'index': '35', 'break': '0%'},
-        {'x': -10, 'y': 8, 'z': -7, 'id': 'point_36', 'index': '36', 'break': '0%'},
-        {'x': -2, 'y': -8, 'z': 3, 'id': 'point_37', 'index': '37', 'break': '75%'},
-        {'x': 0, 'y': 6, 'z': -8, 'id': 'point_38', 'index': '38', 'break': '100%'},
-        {'x': -4, 'y': -1, 'z': -4, 'id': 'point_39', 'index': '39', 'break': '100%'},
-        {'x': -10, 'y': -8, 'z': 0, 'id': 'point_40', 'index': '40', 'break': '50%'},
-        {'x': 7, 'y': 4, 'z': 3, 'id': 'point_41', 'index': '41', 'break': '50%'},
-        {'x': -4, 'y': 5, 'z': -5, 'id': 'point_42', 'index': '42', 'break': '0%'},
-        {'x': -9, 'y': -5, 'z': -4, 'id': 'point_43', 'index': '43', 'break': '75%'},
-        {'x': 7, 'y': 1, 'z': -4, 'id': 'point_44', 'index': '44', 'break': '75%'},
-        {'x': 0, 'y': 4, 'z': -5, 'id': 'point_45', 'index': '45', 'break': '0%'},
-        {'x': -1, 'y': 1, 'z': 8, 'id': 'point_46', 'index': '46', 'break': '75%'},
-        {'x': -1, 'y': -3, 'z': 6, 'id': 'point_47', 'index': '47', 'break': '0%'},
-        {'x': 2, 'y': -6, 'z': 8, 'id': 'point_48', 'index': '48', 'break': '0%'},
-        {'x': -8, 'y': -10, 'z': -3, 'id': 'point_49', 'index': '49', 'break': '0%'},
     ];
 
     // x, y, z axis data
@@ -327,5 +385,7 @@ d3.select('#orientation_xy').on('click', function(d){orientation("xy");});
 d3.select('#orientation_-xy').on('click', function(d){orientation("-xy");});
 d3.select('#orientation_x-y').on('click', function(d){orientation("x-y");});
 d3.select('#orientation_-x-y').on('click', function(d){orientation("-x-y");});
+//d3.select('#filter_point').on('click', function(d){filter_points(10);});
+//d3.select('#filter_vector').on('click', function(d){filter_vectors(10);});
 
 init();
