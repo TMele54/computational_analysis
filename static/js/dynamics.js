@@ -71,7 +71,9 @@ var vector3d = d3._3d()
 var rn = function(min, max){ return Math.round(d3.randomUniform(min, max + 1)()); };
 
 function processData(data, tt){
+
     point_tooltip,vector_tooltip
+
     // Coloring Mechanism to make scatter data look like a sphere not a circle
     //Append a defs (for definition) element to your SVG
     var defs = svg.append("defs");
@@ -103,9 +105,10 @@ function processData(data, tt){
                 point_tooltip.html("Position: [ "+d.x+", "+d.y+", "+d.z+" ]")
                         .style("left", (d3.event.pageX + 10) + "px")
                         .style("top", (d3.event.pageY - 15) + "px");
-                d3.selectAll(".point_un").attr('opacity', 0.1)
-                d3.select(this).attr('opacity', 1)
 
+                d3.selectAll(".point_un").attr('opacity', 0.1)
+
+                d3.select(this).attr('opacity', 1)
             })
             .on('mouseout', function (d, i) {
                 d3.select(this).transition().duration('200').attr("r", 6);
@@ -131,7 +134,7 @@ function processData(data, tt){
     vectors
         .enter()
         .append('line')
-            .attr('class', '_3d line vect_un')
+            .attr('class', '_3d line vector_un')
             .merge(vectors)
             .each(function(d){
                 d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}
@@ -158,7 +161,7 @@ function processData(data, tt){
                         .style("left", (d3.event.pageX + 10) + "px")
                         .style("top", (d3.event.pageY - 15) + "px");
 
-                d3.selectAll(".vect_un").attr('opacity', 0.1)
+                d3.selectAll(".vector_un").attr('opacity', 0.1)
                 d3.select(this).attr('opacity', 1)
 
             })
@@ -170,17 +173,17 @@ function processData(data, tt){
 
                 vector_tooltip.transition().duration('200').style("opacity", 0);
 
-                d3.selectAll(".vect_un").attr('opacity', 1)
+                d3.selectAll(".vector_un").attr('opacity', 1)
             })
 
 
     // Added scatter data to the SVG
-    var point_labels = svg.selectAll('text').data(data[1], key);
+    var point_labels = svg.selectAll('text.pText').data(data[1], key);
 
     point_labels
         .enter()
         .append('text')
-            .attr('class', '_3d text noselect point_un')
+            .attr('class', '_3d pText noselect point_un')
             .merge(point_labels)
             .attr("x", posPointX)
             .attr("y", posPointY)
@@ -189,13 +192,12 @@ function processData(data, tt){
             .attr("transform", "translate(10,0)")
             .text(function(d) { return d.org; });
 
-    // Added scatter data to the SVG
-    var vector_labels = svg.selectAll('text').data(data[5], key);
+    var vector_labels = svg.selectAll('text.vText').data(data[5], key);
 
     vector_labels
         .enter()
         .append('text')
-            .attr('class', '_3d text noselect vect_un')
+            .attr('class', '_3d vText noselect vector_un')
             .merge(vector_labels)
             .attr("x", posPointX)
             .attr("y", posPointY)
@@ -203,6 +205,9 @@ function processData(data, tt){
             .attr("dy", ".3em")
             .attr("transform", "translate(10,0)")
             .text(function(d) { return d.dom; });
+
+    point_labels.exit().remove();
+    vector_labels.exit().remove();
 
     // all of these are just lines in the 3d space
     var xScale = svg.selectAll('path.xScale').data(data[2]);
@@ -248,7 +253,6 @@ function dragStart(){
     mz = d3.event.z;
 };
 function dragged(){
-    point_tooltip, vector_tooltip
 
     mouseX = mouseX || 0;
     mouseY = mouseY || 0;
@@ -289,6 +293,8 @@ function orientation(type){
         yScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([yLine]),
         zScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([zLine]),
         vector3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(vectors),
+        point_label3d.rotateX(alpha - startAngleX).rotateY(beta - startAngleY)(scatter),
+        vector_label3d.rotateX(alpha - startAngleX).rotateY(beta - startAngleY)(vectors),
     ];
 
     processData(data, 10);
