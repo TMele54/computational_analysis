@@ -74,6 +74,16 @@ for line in scatter:
     file.write(str(line) + "," + "\n")
 file.close()
 
+domains = [
+    "Finance",
+    "Pricing",
+    "Patents",
+    "Leadership",
+    "Ethics",
+    "Legal",
+    "Commercial",
+]
+
 vectors = []
 for i in range(7):
     vectors.append(
@@ -86,6 +96,7 @@ for i in range(7):
             "z1": randrange(-10,10),
             "id": "point_"+str(i),
             "index": str(i),
+            "dom": domains[i]
         }
     )
 
