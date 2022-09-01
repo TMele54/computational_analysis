@@ -1,10 +1,6 @@
 /* computation analysis */
 
-button {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-}
+button { /*position: absolute; right: 10px; top: 10px;*/ }
 .xText{
     fill: red;
 }
@@ -24,4 +20,14 @@ div.tooltip {
      border-radius: 8px;
      pointer-events: none;
      font-size: 18px;
+}
+
+/*disable text from being highlighted*/
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }

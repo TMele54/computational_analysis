@@ -19,7 +19,16 @@ xGrid = [],
 alpha = 0,
 beta = 0,
 gamma = 0,
-startAngle = 90, // Math.PI/3;
+startAngle = 0, // Math.PI/3;
+startAngleX = 0, // Math.PI/3;
+startAngleY = 0, // Math.PI/3;
+startAngleZ = 0, // Math.PI/3;
+orientations = {
+    "xy": [Math.PI, 0],
+    "-xy": [Math.PI, Math.PI],
+    "x-y": [0, 0],
+    "-x-y": [0, Math.PI],
+},
 color = d3.scaleOrdinal(d3.schemeCategory20),
 domains = ["A","B","C","D","E","F","G","H","I","J"],
 mx,
@@ -32,9 +41,9 @@ key = function(d){ return d.id; };
 
 var svg = d3.select('#dynamic').append("svg").attr("width", 1050).attr("height", 600).call(d3.drag().on('drag', dragged).on('start', dragStart).on('end', dragEnd)).append('g');
 var grid3d = d3._3d().shape('GRID', 20).origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
-var xScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
-var yScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
-var zScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle).scale(scale);
+var xScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngleX).rotateY(startAngleY).rotateZ(startAngleZ).scale(scale);
+var yScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngleX).rotateY(startAngleY).rotateZ(startAngleZ).scale(scale);
+var zScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngleX).rotateY(startAngleY).rotateZ(startAngleZ).scale(scale);
 
 var point3d = d3._3d()
                         .x(function(d){ return d.x;})
@@ -45,6 +54,7 @@ var point3d = d3._3d()
                             .rotateY(startAngle)
                             .rotateZ(startAngle)
                                 .scale(scale);
+
 // x,y,z here project a vectors x,y,z to a 2d x and y that are drawn on top and the 3d illusion is shown
 // developer of 3d-d3 didnt code x1 and x2, only x1, so x and y for origin are manually put at 400, 375 based on the origin
 var vector3d = d3._3d()
@@ -160,9 +170,9 @@ function processData(data, tt){
     var yText = svg.selectAll('text.yText').data(data[3][0]);
     var zText = svg.selectAll('text.zText').data(data[4][0]);
 
-    xText.enter().append('text').attr('class', '_3d xText').attr('dx', '.3em').merge(xText).each(function(d){ d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}}).attr('x', function(d){ return d.projected.x; }).attr('y', function(d){ return d.projected.y; }).attr('z', function(d){ return d.projected.z; }).text(function(d){ return d[0]});
-    yText.enter().append('text').attr('class', '_3d yText').attr('dx', '.3em').merge(yText).each(function(d){ d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}}).attr('x', function(d){ return d.projected.x; }).attr('y', function(d){ return d.projected.y; }).attr('z', function(d){ return d.projected.z; }).text(function(d){ return d[1]});
-    zText.enter().append('text').attr('class', '_3d zText').attr('dx', '.3em').merge(zText).each(function(d){ d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}}).attr('x', function(d){ return d.projected.x; }).attr('y', function(d){ return d.projected.y; }).attr('z', function(d){ return d.projected.z; }).text(function(d){ return d[2]});
+    xText.enter().append('text').attr('class', '_3d xText noselect').attr('dx', '.3em').merge(xText).each(function(d){ d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}}).attr('x', function(d){ return d.projected.x; }).attr('y', function(d){ return d.projected.y; }).attr('z', function(d){ return d.projected.z; }).text(function(d){ return d[0]});
+    yText.enter().append('text').attr('class', '_3d yText noselect').attr('dx', '.3em').merge(yText).each(function(d){ d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}}).attr('x', function(d){ return d.projected.x; }).attr('y', function(d){ return d.projected.y; }).attr('z', function(d){ return d.projected.z; }).text(function(d){ return d[1]});
+    zText.enter().append('text').attr('class', '_3d zText noselect').attr('dx', '.3em').merge(zText).each(function(d){ d.centroid = {x: d.rotated.x, y: d.rotated.y, z: d.rotated.z}}).attr('x', function(d){ return d.projected.x; }).attr('y', function(d){ return d.projected.y; }).attr('z', function(d){ return d.projected.z; }).text(function(d){ return d[2]});
 
     xText.exit().remove();
     yText.exit().remove();
@@ -188,20 +198,22 @@ function dragStart(){
 function dragged(){
     mouseX = mouseX || 0;
     mouseY = mouseY || 0;
-    mouseZ = mouseZ || 0;
+
     beta   = (d3.event.x - mx + mouseX) * Math.PI / 230 ;
     alpha  = (d3.event.y - my + mouseY) * Math.PI / 230 ;
-    gamma  = (d3.event.z - mz + mouseZ) * Math.PI / 230 * (-1);
 
-    // .rotateZ(gamma - startingAngle)
+    console.log("Alpha", alpha)
+    console.log("Beta", beta)
+    console.log("Alpha - Starting Angle", alpha - startAngle)
+    console.log("Beta + Starting Angle", beta + startAngle)
 
     var data = [
-        grid3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(xGrid),
-        point3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(scatter),
-        xScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([xLine]),
-        yScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([yLine]),
-        zScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([zLine]),
-        vector3d.rotateX(alpha - startAngle).rotateY(beta - startAngle)(vectors),
+        grid3d.rotateX(alpha - startAngleX).rotateY(beta + startAngleY)(xGrid),
+        point3d.rotateX(alpha - startAngleX).rotateY(beta + startAngleY)(scatter),
+        xScale3d.rotateX(alpha - startAngleX).rotateY(beta + startAngleY)([xLine]),
+        yScale3d.rotateX(alpha - startAngleX).rotateY(beta + startAngleY)([yLine]),
+        zScale3d.rotateX(alpha - startAngleX).rotateY(beta + startAngleY)([zLine]),
+        vector3d.rotateX(alpha - startAngleX).rotateY(beta - startAngleY)(vectors),
     ];
 
     processData(data, 10);
@@ -212,6 +224,34 @@ function dragEnd(){
     mouseY = d3.event.y - my + mouseY;
     mouseZ = d3.event.z - mz + mouseZ;
 };
+
+function orientation(type){
+
+    alpha = orientations[type][0]
+    beta = orientations[type][1]
+
+    console.log("Alpha", alpha)
+    console.log("Beta", beta)
+    console.log("Alpha - Starting Angle", alpha - startAngle)
+    console.log("Beta + Starting Angle", beta + startAngle)
+
+    var data = [
+        grid3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(xGrid),
+        point3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(scatter),
+        xScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([xLine]),
+        yScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([yLine]),
+        zScale3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)([zLine]),
+        vector3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(vectors),
+    ];
+
+    processData(data, 10);
+
+};
+
+d3.select('#orientation_xy').on('click', function(d){orientation("xy");});
+d3.select('#orientation_-xy').on('click', function(d){orientation("-xy");});
+d3.select('#orientation_x-y').on('click', function(d){orientation("x-y");});
+d3.select('#orientation_-x-y').on('click', function(d){orientation("-x-y");});
 
 function init(){
 
@@ -278,13 +318,13 @@ function init(){
     d3.range(min, max, 1).forEach(function(d){ zLine.push([0, 0, d]); });
 
     vectors = [
-        {'x': 0, 'y': 0, 'z': 0, 'x1': 8, 'y1': 9, 'z1': -2, 'id': 'point_0', 'index': '0'},
+        {'x': 0, 'y': 0, 'z': 0, 'x1': 8, 'y1': -9, 'z1': -2, 'id': 'point_0', 'index': '0'},
         {'x': 0, 'y': 0, 'z': 0, 'x1': -3, 'y1': 2, 'z1': -5, 'id': 'point_1', 'index': '1'},
-        {'x': 0, 'y': 0, 'z': 0, 'x1': 4, 'y1': 4, 'z1': 8, 'id': 'point_2', 'index': '2'},
+        {'x': 0, 'y': 0, 'z': 0, 'x1': 4, 'y1': -4, 'z1': 8, 'id': 'point_2', 'index': '2'},
         {'x': 0, 'y': 0, 'z': 0, 'x1': -6, 'y1': 9, 'z1': 5, 'id': 'point_3', 'index': '3'},
-        {'x': 0, 'y': 0, 'z': 0, 'x1': 3, 'y1': 0, 'z1': -9, 'id': 'point_4', 'index': '4'},
+        {'x': 0, 'y': 0, 'z': 0, 'x1': 3, 'y1': -0, 'z1': -9, 'id': 'point_4', 'index': '4'},
         {'x': 0, 'y': 0, 'z': 0, 'x1': -8, 'y1': 8, 'z1': 2, 'id': 'point_5', 'index': '5'},
-        {'x': 0, 'y': 0, 'z': 0, 'x1': 3, 'y1': 9, 'z1': 5, 'id': 'point_6', 'index': '6'},
+        {'x': 0, 'y': 0, 'z': 0, 'x1': 3, 'y1': -9, 'z1': 5, 'id': 'point_6', 'index': '6'},
     ];
 
     var data = [
@@ -299,7 +339,5 @@ function init(){
     processData(data, 1500);
 
 }
-
-d3.selectAll('button').on('click', init);
 
 init();
