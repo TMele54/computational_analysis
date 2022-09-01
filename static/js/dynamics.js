@@ -1,6 +1,6 @@
 // Initialize many variables
 
-var origin = [400, 375],
+var origin = [400, 325],
 _alpha = Math.PI/4,
 _beta = 0.615472907,
 _data = [],
