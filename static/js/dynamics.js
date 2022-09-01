@@ -46,26 +46,16 @@ var yScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngleX).
 var zScale3d = d3._3d().shape('LINE_STRIP').origin(origin).rotateX(startAngleX).rotateY(startAngleY).rotateZ(startAngleZ).scale(scale);
 
 var point3d = d3._3d()
-                        .x(function(d){ return d.x;})
-                        .y(function(d){ return d.y;})
-                        .z(function(d){ return d.z;})
-                            .origin(origin)
-                            .rotateX(startAngle)
-                            .rotateY(startAngle)
-                            .rotateZ(startAngle)
-                                .scale(scale);
+                    .x(function(d){ return d.x;}).y(function(d){ return d.y;}).z(function(d){ return d.z;})
+                    .origin(origin).scale(scale)
+                    .rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle);
 
 // x,y,z here project a vectors x,y,z to a 2d x and y that are drawn on top and the 3d illusion is shown
 // developer of 3d-d3 didnt code x1 and x2, only x1, so x and y for origin are manually put at 400, 375 based on the origin
 var vector3d = d3._3d()
-                        .x(function(d){ return d.x1; })
-                        .y(function(d){ return d.y1; })
-                        .z(function(d){ return d.z1; })
-                            .origin(origin)
-                            .rotateX(startAngle)
-                            .rotateY(startAngle)
-                            .rotateZ(startAngle)
-                                .scale(scale);
+                    .x(function(d){ return d.x1; }).y(function(d){ return d.y1; }).z(function(d){ return d.z1; })
+                    .origin(origin).scale(scale)
+                    .rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle);
 
 // Make random numbers for the domain vectors
 var rn = function(min, max){ return Math.round(d3.randomUniform(min, max + 1)()); };
@@ -224,7 +214,6 @@ function dragEnd(){
     mouseY = d3.event.y - my + mouseY;
     mouseZ = d3.event.z - mz + mouseZ;
 };
-
 function orientation(type){
 
     alpha = orientations[type][0]
@@ -247,12 +236,6 @@ function orientation(type){
     processData(data, 10);
 
 };
-
-d3.select('#orientation_xy').on('click', function(d){orientation("xy");});
-d3.select('#orientation_-xy').on('click', function(d){orientation("-xy");});
-d3.select('#orientation_x-y').on('click', function(d){orientation("x-y");});
-d3.select('#orientation_-x-y').on('click', function(d){orientation("-x-y");});
-
 function init(){
 
     //init vars
@@ -338,6 +321,11 @@ function init(){
 
     processData(data, 1500);
 
-}
+};
+
+d3.select('#orientation_xy').on('click', function(d){orientation("xy");});
+d3.select('#orientation_-xy').on('click', function(d){orientation("-xy");});
+d3.select('#orientation_x-y').on('click', function(d){orientation("x-y");});
+d3.select('#orientation_-x-y').on('click', function(d){orientation("-x-y");});
 
 init();
