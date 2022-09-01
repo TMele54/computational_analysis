@@ -52,6 +52,11 @@ var point3d = d3._3d()
                     .origin(origin).scale(scale)
                     .rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle);
 
+var label3d = d3._3d()
+                    .x(function(d){ return d.x;}).y(function(d){ return d.y;}).z(function(d){ return d.z;})
+                    .origin(origin).scale(scale)
+                    .rotateX(startAngle).rotateY(startAngle).rotateZ(startAngle);
+
 var vector3d = d3._3d()
                     .x(function(d){ return d.x1; }).y(function(d){ return d.y1; }).z(function(d){ return d.z1; })
                     .origin(origin).scale(scale)
@@ -81,7 +86,7 @@ function processData(data, tt){
     points
         .enter()
         .append('circle')
-            .attr('class', '_3d')
+            .attr('class', '_3d point_un')
             .attr("id", function(d){ return d.id})
             .attr('opacity', 0)
             .attr('cx', posPointX)
@@ -93,14 +98,14 @@ function processData(data, tt){
                 point_tooltip.html("Position: [ "+d.x+", "+d.y+", "+d.z+" ]")
                         .style("left", (d3.event.pageX + 10) + "px")
                         .style("top", (d3.event.pageY - 15) + "px");
-                d3.selectAll("circle").attr('opacity', 0.1)
+                d3.selectAll(".point_un").attr('opacity', 0.1)
                 d3.select(this).attr('opacity', 1)
 
             })
             .on('mouseout', function (d, i) {
                 d3.select(this).transition().duration('200').attr("r", 6);
                 point_tooltip.transition().duration('200').style("opacity", 0);
-                d3.selectAll("circle").attr('opacity', 1)
+                d3.selectAll(".point_un").attr('opacity', 1)
             })
                 .transition()
                 .duration(tt)
@@ -163,6 +168,22 @@ function processData(data, tt){
                 d3.selectAll("line").attr('opacity', 1)
             })
 
+
+    // Added scatter data to the SVG
+    var labels = svg.selectAll('text').data(data[1], key);
+
+    labels
+        .enter()
+        .append('text')
+            .attr('class', '_3d text noselect point_un')
+            .merge(labels)
+            .attr("x", posPointX)
+            .attr("y", posPointY)
+            .attr("z", posPointZ)
+            .attr("dy", ".3em")
+            .attr("transform", "translate(10,0)")
+            .text(function(d) { return d.org; });
+
     // all of these are just lines in the 3d space
     var xScale = svg.selectAll('path.xScale').data(data[2]);
     var yScale = svg.selectAll('path.yScale').data(data[3]);
@@ -215,11 +236,6 @@ function dragged(){
     beta   = (d3.event.x - mx + mouseX) * Math.PI / 230 ;
     alpha  = (d3.event.y - my + mouseY) * Math.PI / 230 ;
 
-    console.log("Alpha", alpha)
-    console.log("Beta", beta)
-    console.log("Alpha - Starting Angle", alpha - startAngle)
-    console.log("Beta + Starting Angle", beta + startAngle)
-
     var data = [
         grid3d.rotateX(alpha - startAngleX).rotateY(beta + startAngleY)(xGrid),
         point3d.rotateX(alpha - startAngleX).rotateY(beta + startAngleY)(scatter),
@@ -244,11 +260,6 @@ function orientation(type){
     alpha = orientations[type][0]
     beta = orientations[type][1]
 
-    console.log("Alpha", alpha)
-    console.log("Beta", beta)
-    console.log("Alpha - Starting Angle", alpha - startAngle)
-    console.log("Beta + Starting Angle", beta + startAngle)
-
     var data = [
         grid3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(xGrid),
         point3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(scatter),
@@ -261,7 +272,7 @@ function orientation(type){
     processData(data, 10);
 
 };
-
+/*
 function filter_points(_id){
 
     _scatter = []
@@ -275,9 +286,6 @@ function filter_points(_id){
         }
     })
 
-    //d3.selectAll("circle").remove()
-
-    //scatter =
     var data = [
         grid3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(xGrid),
         point3d.rotateX(alpha - startAngle).rotateY(beta + startAngle)(_scatter),
@@ -317,7 +325,7 @@ function filter_vectors(_id){
     processData(data, 10);
 
 }
-
+*/
 function init(){
 
     //init vars
@@ -325,32 +333,33 @@ function init(){
 
     // sample scatter data
     scatter = [
-        {'x': 8, 'y': -9, 'z': -6, 'id': 'point_0', 'index': '0', 'break': '0%'},
-        {'x': -4, 'y': -5, 'z': 5, 'id': 'point_1', 'index': '1', 'break': '0%'},
-        {'x': -10, 'y': -10, 'z': 1, 'id': 'point_2', 'index': '2', 'break': '100%'},
-        {'x': -6, 'y': -9, 'z': 4, 'id': 'point_3', 'index': '3', 'break': '50%'},
-        {'x': 2, 'y': 4, 'z': -7, 'id': 'point_4', 'index': '4', 'break': '100%'},
-        {'x': 8, 'y': -6, 'z': 3, 'id': 'point_5', 'index': '5', 'break': '100%'},
-        {'x': 6, 'y': 6, 'z': -7, 'id': 'point_6', 'index': '6', 'break': '50%'},
-        {'x': 6, 'y': 4, 'z': 4, 'id': 'point_7', 'index': '7', 'break': '0%'},
-        {'x': -10, 'y': -9, 'z': 5, 'id': 'point_8', 'index': '8', 'break': '0%'},
-        {'x': -9, 'y': -6, 'z': 8, 'id': 'point_9', 'index': '9', 'break': '100%'},
-        {'x': 8, 'y': 2, 'z': -2, 'id': 'point_10', 'index': '10', 'break': '0%'},
-        {'x': 4, 'y': -10, 'z': 7, 'id': 'point_11', 'index': '11', 'break': '100%'},
-        {'x': 0, 'y': -4, 'z': 5, 'id': 'point_12', 'index': '12', 'break': '50%'},
-        {'x': 3, 'y': -1, 'z': 5, 'id': 'point_13', 'index': '13', 'break': '0%'},
-        {'x': 4, 'y': -9, 'z': 0, 'id': 'point_14', 'index': '14', 'break': '50%'},
-        {'x': -8, 'y': -10, 'z': 0, 'id': 'point_15', 'index': '15', 'break': '0%'},
-        {'x': 9, 'y': 7, 'z': 1, 'id': 'point_16', 'index': '16', 'break': '50%'},
-        {'x': 0, 'y': -5, 'z': 3, 'id': 'point_17', 'index': '17', 'break': '50%'},
-        {'x': -6, 'y': 6, 'z': 0, 'id': 'point_18', 'index': '18', 'break': '100%'},
-        {'x': -3, 'y': 4, 'z': -9, 'id': 'point_19', 'index': '19', 'break': '50%'},
-        {'x': -6, 'y': 3, 'z': -7, 'id': 'point_20', 'index': '20', 'break': '75%'},
-        {'x': 0, 'y': -4, 'z': 7, 'id': 'point_21', 'index': '21', 'break': '50%'},
-        {'x': 9, 'y': -8, 'z': 8, 'id': 'point_22', 'index': '22', 'break': '50%'},
-        {'x': 3, 'y': -4, 'z': 0, 'id': 'point_23', 'index': '23', 'break': '75%'},
-        {'x': -10, 'y': 5, 'z': 5, 'id': 'point_24', 'index': '24', 'break': '50%'},
-        {'x': -7, 'y': 5, 'z': 0, 'id': 'point_25', 'index': '25', 'break': '0%'},
+    {'x': -9, 'y': -4, 'z': -10, 'id': 'point_0', 'index': '0', 'break': '50%', 'org': 'Sinopharm'},
+    {'x': 1, 'y': 2, 'z': 8, 'id': 'point_1', 'index': '1', 'break': '100%', 'org': 'Roche Pharmaceuticals'},
+    {'x': 4, 'y': -6, 'z': 1, 'id': 'point_2', 'index': '2', 'break': '50%', 'org': 'Novartis'},
+    {'x': 8, 'y': -5, 'z': -10, 'id': 'point_3', 'index': '3', 'break': '75%', 'org': 'Merck'},
+    {'x': 7, 'y': -1, 'z': 5, 'id': 'point_4', 'index': '4', 'break': '75%', 'org': 'AbbVie'},
+    {'x': -9, 'y': -8, 'z': 4, 'id': 'point_5', 'index': '5', 'break': '50%', 'org': 'Janssen'},
+    {'x': -9, 'y': -3, 'z': -7, 'id': 'point_6', 'index': '6', 'break': '75%', 'org': 'GlaxoSmithKline (GSK)'},
+    {'x': 5, 'y': 5, 'z': -8, 'id': 'point_7', 'index': '7', 'break': '50%', 'org': 'Bristol Myers Squibb'},
+    {'x': -5, 'y': -10, 'z': 4, 'id': 'point_8', 'index': '8', 'break': '100%', 'org': 'Pfizer'},
+    {'x': 4, 'y': -10, 'z': 6, 'id': 'point_9', 'index': '9', 'break': '75%', 'org': 'Sanofi'},
+    {'x': -2, 'y': -5, 'z': 1, 'id': 'point_10', 'index': '10', 'break': '50%', 'org': 'Takeda Pharmaceutical'},
+    {'x': 0, 'y': -3, 'z': -9, 'id': 'point_11', 'index': '11', 'break': '50%', 'org': 'AstraZeneca'},
+    {'x': -7, 'y': -1, 'z': 4, 'id': 'point_12', 'index': '12', 'break': '0%', 'org': 'Gilead Sciences'},
+    {'x': -10, 'y': -10, 'z': 1, 'id': 'point_13', 'index': '13', 'break': '75%', 'org': 'Eli Lilly'},
+    {'x': -8, 'y': 1, 'z': -3, 'id': 'point_14', 'index': '14', 'break': '75%', 'org': 'Amgen'},
+    {'x': -3, 'y': -2, 'z': 0, 'id': 'point_15', 'index': '15', 'break': '0%', 'org': 'Bayer'},
+    {'x': 9, 'y': 4, 'z': -2, 'id': 'point_16', 'index': '16', 'break': '50%', 'org': 'Novo Nordisk'},
+    {'x': 9, 'y': 2, 'z': -5, 'id': 'point_17', 'index': '17', 'break': '75%', 'org': 'Boehringer Ingelheim'},
+    {'x': 5, 'y': -3, 'z': 3, 'id': 'point_18', 'index': '18', 'break': '50%', 'org': 'Teva Pharmaceutical'},
+    {'x': 7, 'y': 1, 'z': -5, 'id': 'point_19', 'index': '19', 'break': '100%', 'org': 'Merck KGaA'},
+    {'x': -9, 'y': 3, 'z': 5, 'id': 'point_20', 'index': '20', 'break': '75%', 'org': 'Biogen'},
+    {'x': -3, 'y': -7, 'z': -4, 'id': 'point_21', 'index': '21', 'break': '100%', 'org': 'Viatris'},
+    {'x': -1, 'y': -2, 'z': 4, 'id': 'point_22', 'index': '22', 'break': '0%', 'org': 'Astellas Pharma'},
+    {'x': 2, 'y': 1, 'z': -8, 'id': 'point_23', 'index': '23', 'break': '0%', 'org': 'Daiichi Sankyo'},
+    {'x': 7, 'y': 6, 'z': -3, 'id': 'point_24', 'index': '24', 'break': '100%', 'org': 'Otsuka Holdings'},
+    {'x': -7, 'y': 3, 'z': -9, 'id': 'point_25', 'index': '25', 'break': '50%', 'org': 'CSL'},
+    {'x': 5, 'y': -5, 'z': -10, 'id': 'point_26', 'index': '26', 'break': '100%', 'org': 'Regeneron Pharmaceuticals'},
     ];
 
     // x, y, z axis data
@@ -374,7 +383,8 @@ function init(){
         xScale3d([xLine]),
         yScale3d([yLine]),
         zScale3d([zLine]),
-        vector3d(vectors)
+        vector3d(vectors),
+        label3d(scatter)
     ];
 
     processData(data, 1500);
