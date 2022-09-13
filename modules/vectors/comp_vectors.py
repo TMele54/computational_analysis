@@ -1,26 +1,33 @@
 import numpy as np
+import math
 
-def perpendicular_vector(v):
-    r""" Finds an arbitrary perpendicular vector to *v*."""
-    # for two vectors (x, y, z) and (a, b, c) to be perpendicular,
-    # the following equation has to be fulfilled
-    #     0 = ax + by + cz
+def dotproduct(v1, v2):
+  return sum((a*b) for a, b in zip(v1, v2))
 
-    # x = y = z = 0 is not an acceptable solution
-    if v.x == v.y == v.z == 0:
-        raise ValueError('zero-vector')
+def magnitude(v):
+  return math.sqrt(dotproduct(v, v))
 
-    # If one dimension is zero, this can be solved by setting that to
-    # non-zero and the others to zero. Example: (4, 2, 0) lies in the
-    # x-y-Plane, so (0, 0, 1) is orthogonal to the plane.
-    if v.x == 0:
-        return Vector(1, 0, 0)
-    if v.y == 0:
-        return Vector(0, 1, 0)
-    if v.z == 0:
-        return Vector(0, 0, 1)
+def angle(v1, v2):
+  return math.acos(dotproduct(v1, v2) / (magnitude(v1) * magnitude(v2)))
 
-    # arbitrarily set a = b = 1
-    # then the equation simplifies to
-    #     c = -(x + y)/z
-    return Vector(1, 1, -1.0 * (v.x + v.y) / v.z)
+vector_1 = [12,0,0]
+vector_2 = [4,4,0]
+
+print("magnitude 1:",magnitude(vector_1))
+print("magnitude 2:",magnitude(vector_2))
+print("Angle:", angle(vector_1,vector_2))
+
+# Fx = F * cos(angle between)
+Fx = magnitude(vector_2) * math.cos(angle(vector_1,vector_2))
+
+print("Fx", Fx)
+
+# projection of 2 onto 1
+point = (sum(np.array(vector_1) * np.array(vector_2)) /
+        magnitude(np.array(vector_1))**2) * np.array(vector_1)
+
+print(point)
+
+#  2 * 1               sum(np.array(vector_1) * np.array(vector_2))
+#  -----  * 1                -------------------------------            *    np.array(vector_1)
+#                                          mag(1)^2
